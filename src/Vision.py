@@ -33,18 +33,22 @@ class Vision():
         Returns:
             frame: Captured frame or None if capture failed
         """
+        cap = cv.VideoCapture(source)
+        if not cap.isOpened():
+            print("Error: Could not open video capture.")
+            exit()
+        
         while True:
-            cap = cv.VideoCapture(source)
             ret, frame = cap.read()
-            cap.release()
-            
             if not ret:
                 print("Failed to capture frame")
-                return None
+                break
             
             cv.imshow("frame", frame)
             if cv.waitKey(1000 // 100) == ord('q'):  # Adjust delay based on desired FPS
                 break 
+        cap.release()
+        cv.destroyAllWindows()
 
 # Example usage of the Vision system
 Vision(debug_mode=True).capture_frame()
