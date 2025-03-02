@@ -15,7 +15,7 @@ class Vision():
         self.obstacle:bool = False
         # The following HSV values will need to be tested
         self.hsv_ranges = {
-            'blue': {'lower': np.array([100, 150, 100]), 'upper': np.array([140, 255, 255])},
+            'blue': {'lower': np.array([21,40,50]), 'upper': np.array([170,0,255])},
             'yellow': {'lower': np.array([20, 100, 100]), 'upper': np.array([40, 255, 255])},
             'purple': {'lower': np.array([130, 100, 100]), 'upper': np.array([170, 255, 255])},
             'red1': {'lower': np.array([0, 100, 100]), 'upper': np.array([10, 255, 255])},
@@ -45,10 +45,37 @@ class Vision():
                 break
             
             cv.imshow("frame", frame)
+            self.detect_colour(frame, "yellow")
             if cv.waitKey(1000 // 100) == ord('q'):  # Adjust delay based on desired FPS
                 break 
         cap.release()
         cv.destroyAllWindows()
+        
+        
+    def detect_colour(self, hsv_frame, colour_key):
+        """Due to the weak pigmentation of the tape 
+        Morphological oeprations may help enhancing the track for better
+        detection.
+        
+        Args:
+            hsv_frame: Input HSV frame
+            color_key: Color to detect ('blue', 'yellow', 'purple', 'red')
+        
+        Returns:
+            mask: Binary mask of the detected color
+        """
+        
+        colour_range = self.hsv_ranges[colour_key]
+        mask = cv.inRange(hsv_frame, colour_range["lower"], colour_range["upper"])
+        
+        # kernel = np.ones((5,5), np.uint8)
+        # mask = cv.erode(mask, kernel, iterations=1)
+        # mask = cv.dilate(mask, kernel, iterations=2)
+        
+        if self.debug_mode:
+            cv.imshow(f"{colour_key} Mask", mask)
+            
+        return mask
 
 # Example usage of the Vision system
 Vision(debug_mode=True).capture_frame()
