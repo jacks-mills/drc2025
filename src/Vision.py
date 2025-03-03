@@ -51,7 +51,28 @@ class Vision():
         cap.release()
         cv.destroyAllWindows()
         
+    def preprocess_frame(self, frame):
+        """
+        Preprocess the frame for better detection.
         
+        Args:
+            frame: Input BGR frame
+            
+        Returns:
+            hsv_frame: Converted HSV frame
+            blurred_frame: Gaussian blurred frame
+        """
+        # Convert to HSV color space
+        hsv_frame = cv.cvtColor(frame, cv.COLOR_BGR2HSV)
+        
+        # Apply Gaussian blur to reduce noise
+        blurred_frame = cv.GaussianBlur(hsv_frame, (5,5), 0)
+        
+        if self.debug_mode:
+            cv.imshow("HSV Frame", hsv_frame)
+            
+        return hsv_frame, blurred_frame
+    
     def detect_colour(self, hsv_frame, colour_key):
         """Due to the weak pigmentation of the tape 
         Morphological oeprations may help enhancing the track for better
