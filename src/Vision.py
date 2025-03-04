@@ -38,18 +38,13 @@ class Vision():
             print("Error: Could not open video capture.")
             exit()
         
-        while True:
-            ret, frame = cap.read()
-            if not ret:
-                print("Failed to capture frame")
-                break
-            
-            cv.imshow("frame", frame)
-            self.detect_colour(frame, "yellow")
-            if cv.waitKey(1000 // 100) == ord('q'):  # Adjust delay based on desired FPS
-                break 
-        cap.release()
-        cv.destroyAllWindows()
+        
+        ret, frame = cap.read()
+        if not ret:
+            print("Failed to capture frame")
+            return None
+        return frame
+           
         
     def preprocess_frame(self, frame):
         """
@@ -69,7 +64,15 @@ class Vision():
         blurred_frame = cv.GaussianBlur(hsv_frame, (5,5), 0)
         
         if self.debug_mode:
-            cv.imshow("HSV Frame", hsv_frame)
+            while True:
+                yellow_mask_frame = self.detect_colour(frame, "blue")
+                yellow_mask_frame_hsv = self.detect_colour(hsv_frame, "blue")
+                cv.imshow("yellow_mask_frame", yellow_mask_frame)
+                cv.imshow("yellow_mask_frame_hsv", yellow_mask_frame_hsv)
+                
+                if cv.waitKey(1000 // 100) == ord('q'):  # Adjust delay based on desired FPS
+                    break 
+            cv.destroyAllWindows()
             
         return hsv_frame, blurred_frame
     
@@ -89,9 +92,9 @@ class Vision():
         colour_range = self.hsv_ranges[colour_key]
         mask = cv.inRange(hsv_frame, colour_range["lower"], colour_range["upper"])
         
-        # kernel = np.ones((5,5), np.uint8)
-        # mask = cv.erode(mask, kernel, iterations=1)
-        # mask = cv.dilate(mask, kernel, iterations=2)
+        kernel = np.ones((5,5), np.uint8)
+        mask = cv.erode(mask, kernel, iterations=1)
+        mask = cv.dilate(mask, kernel, iterations=2)
         
         if self.debug_mode:
             cv.imshow(f"{colour_key} Mask", mask)
@@ -99,4 +102,6 @@ class Vision():
         return mask
 
 # Example usage of the Vision system
-Vision(debug_mode=True).capture_frame()
+model = Vision(debug_mode=True)
+frame = model.capture_frame()
+model.preprocess_frame(frame)
