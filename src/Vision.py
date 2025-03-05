@@ -100,6 +100,15 @@ class Vision():
             cv.imshow(f"{colour_key} Mask", mask)
             
         return mask
+    
+    def find_contours(self, mask):
+        """Finds contour in a binary mask
+
+        Args:
+            mask (binary): binary mask for now
+        """
+        contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
+        return contours
 
 # Example usage of the Vision system
 model = Vision(debug_mode=True)
