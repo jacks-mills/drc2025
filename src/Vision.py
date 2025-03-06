@@ -109,6 +109,18 @@ class Vision():
         """
         contours, _ = cv.findContours(mask, cv.RETR_EXTERNAL, cv.CHAIN_APPROX_SIMPLE)
         return contours
+    
+    def get_centroid(self, contour) -> tuple[int, int]: 
+        M = cv.moments(contour)
+        # print(type(M["m10"]))
+        # The zeroth moment, which represents the area of the contour.
+        if M["m00"] != 0:
+            # Typecasting is crucial as the moments are in default float.
+            cX = int(M["m10"] / M["m00"])
+            cY = int(M["m01"] / M["m00"])
+        else:
+            cX, cY = 0, 0
+        return (cX, cY)
 
 # Example usage of the Vision system
 model = Vision(debug_mode=True)
